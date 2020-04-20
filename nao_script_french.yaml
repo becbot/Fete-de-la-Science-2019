@@ -1,0 +1,49 @@
+- Bonjour: Bonjour !
+- Name: "Je m’appelle NAO."
+- Au revoir: "Au revoir!"
+- age: "J'ai six ans"
+- 1.INTRO: "Bonjour ! Je m’appelle NAO. Aujourd’hui, on va jouer à un jeu ensemble. Ensemble, on doit aider Cubetto à se déplacer sur la carte. Pour cela, on va utiliser le tableau de contrôle, tu le vois ?"
+- 2.RULES: "Pour faire bouger Cubetto, tu mets les pièces dans le tableau de contrôle à partir de la flèche. Quand tu as fini de placer toutes les pièces, il faut appuyer sur le gros bouton bleu. Il y a 3 pièces différents. Les pièces vertes permettent à Cubetto de se déplacer d’un carré en avant, les pièces jaunes de tourner à gauche et les pièces rouges de tourner à droite. Est-ce que tu as compris ? "
+- repeat_rules: "Les pièces vertes permettent à Cubetto de se déplacer d’un carré en avant, les pièces jaunes de tourner à gauche et les pièces rouges de tourner à droite."
+- .................... DIVIDER BUTTON CORRECT..................:
+- 3. rocket_volcano_CORRECT:  "Maintenant, on va jouer chacun notre tour. Je commence. Cubetto commence sur la fusée. Je veux le déplacer jusqu’à le volcan. Par contre j’aurai besoin que tu places les pièces pour moi s’il te plait. D’abord place une pièce verte"
+- 3a. rocket_volcano_CORRECT: "Ensuite, une pièce jaune"
+- 3b. rocket_volcano_CORRECT: "Puis, une pièce verte"
+- 3c. rocket_volcano_CORRECT: "Encore une pièce rouge"
+- 3d. rocket_volcano_CORRECT: "Enfin, deux pièces vertes"
+- .................... DIVIDER BUTTON INCORRECT..................:
+- 4. rocket_mountain_INCORRECT: "Maintenant, on va jouer chacun notre tour. Je commence. Cubetto commence sur la fusée. Je veux le déplacer jusqu’à le volcan. Par contre j’aurai besoin que tu places les pièces pour moi s’il te plait. D’abord place une pièce verte"
+- 4a. rocket_volcano_INCORRECT: "Ensuite, une pièce rouge"
+- 4b. rocket_volcano_INCORRECT: "Puis, une pièce verte"
+- 4c. rocket_volcano_CORRECT: "Encore une pièce jaune"
+- 4d. rocket_volcano_CORRECT: "Enfin, deux pièces vertes"
+- 6. press_button : "Appuyer sur le bouton"
+- 7. cubetto_move: "Cubetto est entrain de se déplacer."
+- remove_piece: "enlevés-toi la dernière pièce"
+- 8a. nao_successful: "Ouaihh ! Cubetto est arrivé à la bonne destination, mes instructions étaient justes !"
+- 8b. nao_unsuccessful: "Oh non ! Cubetto semble être perdu quelque part, mes instructions étaient fausses!"
+- 9. child_turn: "Ok, maintenant à ton tour! Avant de jouer, retire toutes les pièces du tableau de commande"
+- 11a. choice_saturn: "Ok, pour finir, on peut choisir où de venir ! Si Cubetto commence sur le volcan, on peut venir à Saturn ou à Jupiter. Je préfère Saturn. Qu’est-ce que tu préfères, Saturn ou Jupiter ?"
+- 11b. choice_jupiter: "Ok, pour finir, on peut choisir où de venir ! Si Cubetto commence sur le volcan, on peut venir à Saturn ou à Jupiter. Je préfère la Jupiter. Qu’est-ce que tu préfères, Saturn ou Jupiter?" 
+- 12. after_choice: "Tu peux choisir les mouvements. Après t'es fini, appuyer sur le bouton"
+- child_successful: "Bravo ! Cubetto est bien arrivé à destination !"
+- child_unsuccessful: "Oh non ! Cubetto."
+- child_successful_conclusion: " Bravo! Cubetto est bien arrivé à son destination final! Bien joué !"
+- child_unsuccessful_conclusion: "Oups, Cubetto s’est perdu quelque part !"
+- if_unsuccesful: "Est-ce que tu veux réessayer ?"
+- last_attempt: "Essayons-nous une dernière fois !"
+- suggest_stopping: "Peut-être on peut arrêter pour le moment?"
+- 13. CONCLUSION: "Le jeu est terminé. Merci d’avoir joué avec moi ! A la prochaine !"
+- 1_green: "une pièce verte "
+- 2_green: "deux pièces verts "
+- 3_green: "trois pièces verts "
+- 4_green: "quatre pièces verts "
+- 1_red: "une pièce rouge "
+- 1_yellow: "une pièce jaune "
+- empty_button: 
+
+
+
+
+
+
