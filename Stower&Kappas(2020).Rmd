@@ -1,0 +1,565 @@
+---
+title: "Stower & Kappas (2020)"
+author: "Rebecca"
+date: "28/04/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load libraries
+```{r, message = FALSE, warning =FALSE}
+library(prettydoc)
+library(ggthemes)
+library(wesanderson)
+library(summarytools)
+library(gmodels)
+library(tidyverse)
+library(Hmisc)
+library(dplyr)
+library(psych)
+library(rstatix)
+library(pwr)
+library(effectsize)
+library(ggplot2)
+library(reshape2)
+library(RColorBrewer)
+library(viridis)
+library(cowplot)
+library(corpcor)
+library(GPArotation)
+library(pastecs)
+library(mvnormtest)
+library(rmarkdown)
+```
+
+# Import Data
+```{r}
+library(readxl)
+fete_data <- read_excel("roman_data_FINAL.xlsx")
+View(fete_data)
+```
+
+# Creating Sub-Scales for Child Questionnaire
+```{r}
+fete_data$competence <-rowMeans(fete_data[grep("competence",                                             names(fete_data))])
+head(fete_data)
+
+fete_data$social <- rowMeans(fete_data[grep("social", names(fete_data))])
+head(fete_data)
+
+fete_data$like <- rowMeans(fete_data[grep("like", names(fete_data))])
+head(fete_data)
+
+fete_data$agency <- rowMeans(fete_data[grep("agency", names(fete_data))], na.rm = TRUE)
+head(fete_data)
+```
+
+## Testing subscale reliability
+### Competence
+```{r}
+cor.test(fete_data$competence_good_teacher, fete_data$competence_reliable)
+```
+### Social
+```{r}
+cor.test(fete_data$social_keep_secret, fete_data$social_trust)
+```
+
+### Like
+```{r}
+cor.test(fete_data$like_like_robot, fete_data$like_be_friend)
+```
+
+### Agency
+```{r}
+round(cor(fete_data[,c("agency_feelings", "agency_move", "agency_hit")], use = "complete.obs", method = c("spearman")), digits = 2)
+```
+
+## Correlations between subscales
+```{r}
+correlations <- cor_mat(fete_data, competence, social, like, agency, vars = NULL, method = "spearman", alternative = "two.sided", conf.level = 0.95)
+```
+
+###With p-values
+```{r}
+cor_pmat(fete_data, competence, social, like, agency, vars = NULL, method = "spearman", alternative = "two.sided", conf.level = 0.95)
+
+cor_get_pval(correlations)
+```
+
+```{r}
+cor_mark_significant(correlations, cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, 1),
+  symbols = c("****", "***", "**", "*", ""))
+```
+
+# Descriptive statistics
+```{r}
+mean_age <- mean(fete_data$age, na.rm = TRUE)
+mean_age
+
+sd_age <- sd(fete_data$age, na.rm = TRUE)
+sd_age
+
+mean_sec <- mean(fete_data$length_sec, na.rm = TRUE)
+mean_sec
+
+sd_sec <- sd(fete_data$length_sec, na.rm = TRUE)
+sd_sec
+
+mean_minutes <- (mean_sec)/60
+mean_minutes
+
+sd_minutes <- (sd_sec)/60
+sd_minutes
+
+range_age <- freq(fete_data$age, report.nas = TRUE, totals = TRUE, 
+     cumul = FALSE, headings = FALSE)
+range_age
+
+gender_freq <- freq(fete_data$gender, report.nas = TRUE, totals = TRUE, 
+     cumul = FALSE, headings = FALSE)
+gender_freq
+
+reliability_freq <- freq(fete_data$robot_reliability, report.nas = TRUE, totals = TRUE, 
+     cumul = FALSE, headings = FALSE)
+reliability_freq
+
+day_freq <- freq(fete_data$day, report.nas = TRUE, totals = TRUE, 
+     cumul = FALSE, headings = FALSE)
+day_freq
+
+questionnaire_freq <- freq(fete_data$questionnaire, report.nas = TRUE, totals = TRUE, 
+     cumul = FALSE, headings = FALSE)
+questionnaire_freq
+  
+```
+
+## Subscale Means and SDs
+### Competency Trust
+```{r}
+#Overall by Robot Reliability
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes") %>%
+ group_by(robot_reliability) %>%
+  summarise(mean_competence = mean(competence), sd_competence = sd(competence)) %>%
+ungroup()
+
+#Day 1  by Robot Reliability
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes" & day == "day1") %>%
+ group_by(robot_reliability) %>%
+  summarise(mean_competence = mean(competence), sd_competence = sd(competence)) %>%
+ungroup()
+
+#Day 2 by Robot Reliability
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes" & day == "day2") %>%
+ group_by(robot_reliability) %>%
+  summarise(mean_competence = mean(competence), sd_competence = sd(competence)) %>%
+ungroup()
+
+#Overall by Day
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes") %>%
+ group_by(day) %>%
+  summarise(mean_competence = mean(competence), sd_competence = sd(competence)) %>%
+ungroup()
+
+
+```
+
+### Social Trust
+```{r}
+#Overall by Robot Reliability
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes") %>%
+ group_by(robot_reliability) %>%
+  summarise(mean_social = mean(social), sd_social = sd(social)) %>%
+ungroup()
+
+#Day 1 by Robot Relaibility
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes" & day == "day1") %>%
+ group_by(robot_reliability) %>%
+  summarise(mean_social = mean(social), sd_social = sd(social)) %>%
+ungroup()
+
+#Day 2 by Robot Reliability
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes" & day == "day2") %>%
+ group_by(robot_reliability) %>%
+  summarise(mean_social = mean(social), sd_social = sd(social)) %>%
+ungroup()
+
+#Overall by Day
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes") %>%
+ group_by(day) %>%
+  summarise(mean_social = mean(social), sd_social = sd(social)) %>%
+ungroup()
+```
+
+### Liking
+```{r}
+#Overall by Robot Reliability
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes") %>%
+ group_by(robot_reliability) %>%
+  summarise(mean_like = mean(like), sd_like = sd(like)) %>%
+ungroup()
+
+#Day 1 by Robot Reliability
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes" & day == "day1") %>%
+ group_by(robot_reliability) %>%
+  summarise(mean_like = mean(like), sd_like = sd(like)) %>%
+ungroup()
+
+#Day 2 by Robot Reliability
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes" & day == "day2") %>%
+ group_by(robot_reliability) %>%
+  summarise(mean_like = mean(like), sd_like = sd(like)) %>%
+ungroup()
+
+#Overall by Day
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes") %>%
+ group_by(day) %>%
+  summarise(mean_like = mean(like), sd_like = sd(like)) %>%
+ungroup()
+
+```
+
+### Agency
+```{r}
+#Overall by Robot Reliability
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes") %>%
+ group_by(robot_reliability) %>%
+  summarise(mean_agency = mean(agency), sd_agency = sd(agency)) %>%
+ungroup()
+
+#Day 1 by Robot Reliability
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes" & day == "day1") %>%
+ group_by(robot_reliability) %>%
+  summarise(mean_agency = mean(agency), sd_agency = sd(agency)) %>%
+ungroup()
+
+#Day 2 by Robot Reliability
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes" & day == "day2") %>%
+ group_by(robot_reliability) %>%
+  summarise(mean_agency = mean(agency), sd_agency = sd(agency)) %>%
+ungroup()
+
+#Overall by Day
+fete_data %>% filter(!is.na(robot_reliability) & questionnaire == "yes") %>%
+ group_by(day) %>%
+  summarise(mean_agency = mean(agency), sd_agency = sd(agency)) %>%
+ungroup()
+```
+
+# Subsetting Child Questionnaire Data
+```{r}
+questionnaire_data <- fete_data %>%
+  filter(!is.na(robot_reliability)) %>%
+  filter (questionnaire == "yes") %>%
+  mutate (as.factor(robot_reliability))
+```
+
+# Assumptions Testing
+## Histograms
+```{r}
+#competency
+hist_competency <- ggplot(questionnaire_data, aes(competence)) +
+  geom_histogram(bins = 15, colour = "black", fill = "white") +
+  labs (x = "Competency Trust")
+
+hist_competency + stat_function(fun = dnorm, args = list(mean = mean(questionnaire_data$competence, na.rm = TRUE), sd = sd(questionnaire_data$competence, na.rm = TRUE)), colour = "black", size = 1)
+
+#social
+hist_social <- ggplot(questionnaire_data, aes(social)) +
+  geom_histogram(bins = 15, colour = "black", fill = "white") +
+  labs (x = "Social Trust")
+
+hist_social + stat_function(fun = dnorm, args = list(mean = mean(questionnaire_data$social, na.rm = TRUE), sd = sd(questionnaire_data$social, na.rm = TRUE)), colour = "black", size = 1)
+
+#liking
+hist_liking <- ggplot(questionnaire_data, aes(like)) +
+  geom_histogram(bins = 15, colour = "black", fill = "white") +
+  labs (x = "Liking")
+
+hist_liking + stat_function(fun = dnorm, args = list(mean = mean(questionnaire_data$like, na.rm = TRUE), sd = sd(questionnaire_data$like, na.rm = TRUE)), colour = "black", size = 1)
+
+#agency
+hist_agency <- ggplot(questionnaire_data, aes(agency)) +
+  geom_histogram(bins = 15, colour = "black", fill = "white") +
+  labs (x = "Agency")
+
+hist_agency + stat_function(fun = dnorm, args = list(mean = mean(questionnaire_data$agency, na.rm = TRUE), sd = sd(questionnaire_data$agency, na.rm = TRUE)), colour = "black", size = 1)
+
+```
+
+##Normality Tests
+```{r}
+stat.desc(questionnaire_data[, c("competence", "social", "like", "agency")], basic = FALSE, norm = TRUE)
+```
+
+## Homogeneity of Variance
+```{r}
+fete_data %>%
+  gather (key = "variable", value = "value", competence, social, like, agency) %>%
+  group_by(variable) %>%
+  levene_test(value ~ robot_reliability)
+```
+non-significant for all variables, variances are distributed equally
+
+## Homogeneity of Covariance
+```{r}
+box_m(questionnaire_data[, c("competence", "social", "like", "agency")], questionnaire_data$robot_reliability)
+```
+
+# MANOVA, 
+IV = robot reliability, DV = child questionnaire
+```{r}
+model <- lm(cbind(competence, social, like, agency) ~ robot_reliability, fete_data)
+Manova (model, test.statistic = "Pillai")
+```
+
+## Effect Size for MANOVA
+```{r}
+eta2 <- eta_squared(model, partial = TRUE, ci = 0.9,)
+eta2
+
+cohensf <- cohens_f(model, partial = TRUE, ci = 0.9,)
+cohensf
+```
+
+## Post-hoc Power Analysis
+Calculating power based on sample size
+```{r}
+pwr.anova.test(k = 2, n = 12, f = 0.1946, sig.level = 0.05, power = NULL )
+```
+
+Calculating sample size needed to detect a small effect
+```{r}
+pwr.anova.test(k = 2, n = NULL, f = 0.1946, sig.level = 0.05, power = 0.8)
+```
+
+#Chi Square Tests
+## Chi Square by Robot Reliability
+```{r}
+CrossTable(fete_data$robot_reliability, fete_data$choice_coded, fisher = TRUE, chisq = TRUE, expected = TRUE, sresid = TRUE)
+
+#Day 1
+day_1 <- fete_data %>%
+  filter(day == "day1")
+CrossTable(day_1$robot_reliability, day_1$choice_coded, fisher = TRUE, chisq = TRUE, expected = TRUE, sresid = TRUE)
+
+#Day 2
+day_2 <- fete_data %>%
+  filter(day == "day2")
+CrossTable(day_2$robot_reliability, day_2$choice_coded, fisher = TRUE, chisq = TRUE, expected = TRUE, sresid = TRUE)
+```
+
+## Chi Square by Robot Recommendation
+```{r}
+CrossTable(day_1$robot_recommendation, day_1$choice_coded, fisher = TRUE, chisq = TRUE, expected = TRUE, sresid = TRUE)
+
+CrossTable(day_2$robot_recommendation, day_2$choice_coded, fisher = TRUE, chisq = TRUE, expected = TRUE, sresid = TRUE)
+```
+
+## Frequency of Children's Choices
+Day 1
+```{r}
+freq(day_1$child_choice, report.nas = FALSE, totals = TRUE, 
+     cumul = FALSE, headings = FALSE)
+```
+
+Day2
+```{r}
+
+freq(day_2$child_choice, report.nas = FALSE, totals = TRUE, 
+     cumul = FALSE, headings = FALSE)
+```
+
+# Parent Questionnaire 
+## Descriptives
+```{r}
+fete_data$parent_questionnaire <-rowMeans(fete_data[grep("parent", names(fete_data))], na.rm = TRUE)
+head(fete_data)
+```
+
+```{r}
+describe(fete_data$parent_questionnaire)
+
+alpha(data.frame(fete_data[grep("parent", names(fete_data))]))
+
+mean_hours <- mean(fete_data$hours, na.rm = TRUE)
+mean_hours
+mean_tech <- mean(fete_data$technology, na.rm = TRUE)
+mean_tech
+mean_media <- mean(fete_data$media, na.rm = TRUE)
+mean_media
+mean_previous_robot <- mean(fete_data$previous_robot, na.rm = TRUE)
+mean_previous_robot
+
+freq(fete_data$hours)
+freq(fete_data$technology)
+freq(fete_data$media)
+freq(fete_data$previous_robot)
+
+graph_hours <- ggplot(fete_data, aes(x = hours)) + 
+  geom_bar(na.rm = TRUE, stat = "count", fill = "#1F78B4") + 
+  scale_x_discrete(limits = c("0-5", "5-10", "10-15", "15-20", ">20")) + 
+  xlab("Number of Hours") + 
+  ylab(NULL) +
+  scale_y_continuous(breaks = seq(0,40,by = 5))
+
+graph_technology <- ggplot(fete_data, aes(x = technology)) + 
+  geom_bar(na.rm = TRUE, stat = "count", fill = "#1F78B4") + 
+  scale_x_discrete(limits = c("1 (None)", "2", "3", "4", "5 (A Lot)")) + 
+  xlab("Exposure to Technology") + 
+  ylab(NULL) +
+  scale_y_continuous(breaks = seq(0,40,by = 5))
+
+graph_media <- ggplot(fete_data, aes(x = media)) + 
+  geom_bar(na.rm = TRUE, stat = "count", fill = "#1F78B4") + 
+  scale_x_discrete(limits = c("Never", "Rarely", "Occasionally", "Often", "Frequently")) + 
+  xlab("Exposure to Robot Media") + 
+  ylab(NULL) +
+  scale_y_continuous(breaks = seq(0,40,by = 5))
+
+graph_previous_robot <- ggplot(fete_data, aes(x = previous_robot)) + 
+  geom_bar(na.rm = TRUE, stat = "count", fill = "#1F78B4") + 
+  scale_x_discrete(limits = c("Never", "Rarely", "Occasionally", "Often", "Frequently")) + 
+  xlab("Exposure to Previous Robots") + 
+  ylab(NULL) +
+  scale_y_continuous(breaks = seq(0,40,by = 5))
+
+#pdf("graph_combined.pdf")
+plot_grid(graph_hours, graph_technology, graph_media, graph_previous_robot, labels = c("A", "B", "C", "D"), hjust = -0.5, vjust = 1 )
+#dev.off()
+
+```
+
+## Correlations Parent questionnaire
+```{r}
+parent_cor <- cor_mat(fete_data, parent_interest, parent_like_learning, parent_trust, parent_follow_instructions, parent_be_friend, parent_like_talking, vars = NULL, method = "spearman", alternative = "two.sided", conf.level = 0.95)
+
+parent_cor
+```
+
+```{r}
+cor_pmat(fete_data, parent_interest, parent_like_learning, parent_trust, parent_follow_instructions, parent_be_friend, parent_like_talking, vars = NULL, method = "spearman", alternative = "two.sided", conf.level = 0.95)
+
+cor_get_pval(parent_cor)
+```
+
+With p-values
+```{r}
+cor_mark_significant(parent_cor, cutpoints = c(0, 1e-04, 0.001, 0.01, 0.05, 1),
+  symbols = c("****", "***", "**", "*", ""))
+```
+
+## PCA with Oblimin Rotation
+### Checking appropriateness for factor analysis
+```{r}
+parents <- fete_data %>%
+ select(parent_interest:parent_like_talking) %>%
+  filter(complete.cases(.))
+
+cortest.bartlett(parents)
+KMO(parents)
+det(cor(parents))
+```
+
+### Determining Number of Factors to Extract
+```{r} 
+pcamodel <-principal(parents, nfactors = 6, rotate = "none", scores = FALSE)
+pcamodel 
+```
+
+Scree Plot
+```{r}
+plot(pcamodel$values, type = "b")
+```
+
+Based on Scree Plot and Kaiser's Crtierion of Eigenvalues >1, 2 Factors can be extracted
+
+### Unrotated Factor Model (2 Factors)
+```{r}
+pca2factor <- principal(parents, nfactors = 2, rotate = "none", scores = FALSE)
+pca2factor
+
+factor.model(pca2factor$loadings)
+```
+
+### Calculating Residuals
+```{r}
+residuals <- factor.residuals(cor(parents), pca2factor$loadings)
+residuals <- as.matrix(residuals[upper.tri(residuals)])
+residuals
+large.resid <- abs(residuals) > 0.05
+sum(large.resid)
+sum(large.resid/nrow(residuals))
+sqrt(mean(residuals^2))
+hist(residuals)
+```
+
+### Rotated Factor Model
+Pattern Matrix
+```{r}
+pcarotate <- principal(parents, nfactors = 2, rotate = "oblimin")
+print.psych(pcarotate, cut = 0.3, sort = TRUE)
+```
+
+Structure Matrix
+```{r}
+factor.structure <- function(fa, cut = 0.2, decimals = 2){
+	structure.matrix <- fa.sort(fa$loadings %*% fa$Phi)
+	structure.matrix <- data.frame(ifelse(abs(structure.matrix) < cut, "", round(structure.matrix, decimals)))
+	return(structure.matrix)
+	}
+
+factor.structure(pcarotate, cut = 0.3) #structure matrix
+
+pcascores <- principal(parents, nfactors = 2, rotate = "oblimin", scores = TRUE)
+pcascores$scores
+```
+
+# Behavioural Data
+```{r}
+behavioural <- fete_data %>%
+  filter(!is.na(robot_reliability)) %>%
+  filter(!is.na(percent_robot)) %>%
+  filter(!is.na(percent_game)) %>%
+  filter(!is.na(percent_game)) %>%
+  filter(!is.na(percent_experimenter)) %>%
+  filter(!is.na(percent_others)) %>%
+  filter(!is.na(percent_background)) %>%
+  select(percent_robot, percent_game, percent_experimenter, percent_others, percent_background, percent_misc) %>%
+  mutate(percent_robot = percent_robot*100) %>%
+  mutate(percent_game = percent_game*100) %>%
+  mutate(percent_experimenter = percent_experimenter*100) %>%
+  mutate(percent_others = percent_others*100) %>%
+  mutate(percent_background = percent_background*100) %>%
+  mutate(percent_people = (percent_experimenter + percent_others)) %>%
+  mutate(percent_other = (percent_background + percent_misc))%>%
+  select(percent_robot, percent_game, percent_people, percent_other)
+
+stat.desc(behavioural, basic = TRUE, norm = FALSE)
+```
+
+## Graph of Gaze Proportions
+```{r}
+gg_behavioural <- melt(behavioural)
+
+dodge <- position_dodge(width = 0.5)
+
+#pdf("graph_mean_gaze.pdf")
+ggplot(gg_behavioural, aes(x = reorder(variable, -value), y = value)) +
+  stat_summary(fun = mean, geom = "bar", fill = "#1F78B4", width = 0.75) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar",
+               colour="grey70", position=position_dodge(1), width=.2) +
+  scale_x_discrete(labels = c(percent_game = "Game", percent_robot= "Robot", percent_people = "People", percent_other = "Other")) + 
+  xlab("Gaze Direction") + 
+  ylab("Proportion of Time") +
+  scale_y_continuous(breaks = seq(0,100,by = 5)) +
+  theme(aspect.ratio = 1) +
+  theme(axis.text = element_text(size=14)) +
+  theme(axis.title = element_text(size=14, face = "bold"))
+#dev.off()
+```
+##
